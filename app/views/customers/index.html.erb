@@ -1,0 +1,128 @@
+<script type="text/javascript">
+  // * Creates a show button
+  function btnShow(value, metaData, record, rowIndex) {
+    var ret = "<div><a href='#' onClick='customerShow(" + rowIndex + ")'>Show</a></div>";
+    return ret;
+  }
+
+  // * Getting data to show a customer
+  function customerShow(rowIndex) {
+    var id = storeCustomers.getAt(rowIndex).get("id");
+    var name = storeCustomers.getAt(rowIndex).get("name");
+    addSubTab("tab_customers", "Showing " + name, "sub_tab_customers_show_" + id, "/customers/show/" + id);
+  }
+
+  // * Creates a delete button
+  function btnDelete(value, metaData, record, rowIndex, colIndex, store) {
+    var ret =  "<div><a href='#' onClick='customerDelete(" + rowIndex + ")'>Delete</a></div>";
+    return ret;
+  }
+
+  // * Getting data for a delete of customer
+  function customerDelete(rowIndex) {
+    var id = storeCustomers.getAt(rowIndex).get("id");
+    var name = storeCustomers.getAt(rowIndex).get("name");
+    Ext.Msg.confirm("Delete ", "Confirm delete user <b>" + name + "</b>", function(action) {
+      if (action == "yes") {
+        Ext.Ajax.request({
+          url: "customers/destroy/" + id,
+          success: function() {
+            updateSubTab("tab_customers", "Customers list", "sub_tab_customers", "customers");
+            closeSubTab("tab_customers", "sub_tab_customers_edit_" + id);
+            closeSubTab("tab_customers", "sub_tab_customers_show_" + id);
+          },
+          failure: function() {
+            Ext.Msg.alert("Error", "There was a problem while processing this request");
+          }
+        });
+      }
+    });
+  }
+
+  // * Creates a link to the customer's name in the list
+  function customerLink(value, metaData, record, rowIndex, colIndex, store) {
+    return "<div><a href='#' onclick='customerEdit(" + rowIndex + ")'>" + value + "</a></div>";
+  }
+
+  // * Getting data for a edit of customer
+  function customerEdit(rowIndex) {
+    var id = storeCustomers.getAt(rowIndex).get("id");
+    var name = storeCustomers.getAt(rowIndex).get("name");
+    addSubTab("tab_customers", "Editing " + name, "sub_tab_customers_edit_" + id, "/customers/edit/" + id);
+  }
+
+  var storeCustomers = createStore(
+    "<%= url_for(:controller => "customers", :action => "store", :id => "grid" ) %>",
+    ["id", "name", "phone", "birth"],
+    [{name: "id"}, {name: "name"}, {name: "phone"}, {name: "birth"}]
+  );
+
+  // * Field for var customersGrid
+  var searchField = new Ext.form.TextField({name: "search", emptyText : "Search..."});
+
+  // * @method:       Criar um grid painel e suas funcionalidades
+  // * @dependecies:  var storeCustomers 
+  // * @author:       Paulo César Dianin Junior
+  // * @since:        07/01/2011
+  // * @store:        Dados consultados no banco
+  // * @columns:      Colunas e valores do grid panel
+  // * @bbar:         Barra inferior e suas funcionalidades
+  // * @tbar:         Barra superior e suas funcionalidades
+  var customersGrid = new Ext.grid.GridPanel({
+    autoHeight: true,
+    autoWidth: true,
+    title: "Customers list",
+    store: storeCustomers,
+    loadMask: true,
+    columns: [
+      {id: "name", header: "Name", dataIndex: "name", renderer: customerLink, sortable: true, width: 220},
+      {id: "phone", header: "Phone", dataIndex: "phone", sortable: true, width: 220},
+      {id: "birth", header: "Birth", dataIndex: "birth", sortable: true, width: 220},
+      {id: "edit", dataIndex: "edit", renderer: btnShow, sortable: false, width: 40},
+      {id: "delete", dataIndex: "delete", renderer: btnDelete, sortable: false, width: 40}
+    ],
+    bbar: new Ext.PagingToolbar({
+      pageSize: 15,
+      store: storeCustomers,
+      displayInfo: true,
+      displayMsg: "Listing <%= params[:controller] %> {0} - {1} of {2}",
+      emptyMsg: "No registers to show"
+    }),
+    tbar: new Ext.Toolbar({
+      items: [
+        new Ext.Button ({ 
+          text: "Add new",
+          handler: function() { 
+            addSubTab("tab_customers", "New customer", "sub_tab_customers_new", "/customers/new");
+          }
+        }),
+        searchField,
+        new Ext.Button ({
+          text: "Go",
+          handler: function() {
+            storeCustomers.baseParams.query = searchField.getValue();
+            storeCustomers.load({
+              params: {
+                start: 0, 
+                limit: 15
+              }
+            });
+          }
+        })
+      ],
+      width: 200,
+      autoWidth: false
+    }),
+    stripeRows: true
+  });
+
+  storeCustomers.load({
+    params: {
+      start: 0, 
+      limit: 15
+    }
+  });
+
+  customersGrid.render("customers_grid_content");
+</script>
+<br /><div id = "customers_grid_content" style="margin-left:15px;margin-right:15px;"></div><br />

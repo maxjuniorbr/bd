@@ -1,0 +1,56 @@
+<script type="text/javascript">
+  // * Create a panel and their fields
+  var customerShow<%= @customer.id %> = new Ext.FormPanel({
+    frame: true,
+    title: "Showing",
+    style: "margin: 0 0 0 15px",
+    width: 550,
+    labelWidth: 150,
+    monitorValid: true,
+    items: [{
+      xtype: "fieldset",
+      defaultType: "textfield",
+      autoHeight: true,
+      defaults: { width: 350, allowBlank: false },
+      items: [
+        {
+          fieldLabel: "Name",
+          name: "customer[name]",
+          value: "<%= @customer.name %>",
+          disabled: true,
+          maxLength: 100
+        }, {
+          fieldLabel: "Phone",
+          name: "customer[phone]",
+          value: "<%= @customer.phone %>",
+          disabled: true,
+          maxLength: 14
+        }, {
+          fieldLabel: "Birth",
+          name: "customer[birth]",
+          value: "<%= @customer.birth %>",
+          disabled: true,
+          maxLength: 10
+        }
+      ]
+    }],
+    buttons: [
+      {
+        text: 'Edit customer',
+        handler:function() {
+          addSubTab("tab_customers", "Editing <%= @customer.name %>", "sub_tab_customers_edit_<%= @customer.id %>", "/customers/edit/<%= @customer.id %>");
+          closeSubTab("tab_customers", "sub_tab_customers_show_<%= @customer.id %>");
+        }
+      }, {
+        text: 'Cancel',
+        handler: function() {
+          closeSubTab("tab_customers", "sub_tab_customers_show_<%= @customer.id %>");
+        }
+      }
+    ]
+  });
+
+  // * Render variable in div
+  customerShow<%= @customer.id %>.render('customer_show_content_<%= @customer.id %>');
+</script>
+<br /><div id = "customer_show_content_<%= @customer.id %>"></div><br />

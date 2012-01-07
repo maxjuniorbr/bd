@@ -1,0 +1,75 @@
+<script type="text/javascript">
+  // * Create a panel and their fields
+  var customerEdit<%= @customer.id %> = new Ext.FormPanel({
+    frame: true,
+    title: "Editing",
+    style: "margin: 0 0 0 15px",
+    width: 550,
+    labelWidth: 150,
+    monitorValid: true,
+    items: [{
+      xtype: "fieldset",
+      defaultType: "textfield",
+      autoHeight: true,
+      defaults: { width: 350, allowBlank: false },
+      items: [
+        {
+          fieldLabel: "Name",
+          name: "customer[name]",
+          value: "<%= @customer.name %>",
+          maxLength: 100
+        }, {
+          fieldLabel: "Phone",
+          name: "customer[phone]",
+          value: "<%= @customer.phone %>",
+          maxLength: 14
+        }, {
+          fieldLabel: "Birth",
+          name: "customer[birth]",
+          value: "<%= @customer.birth %>",
+          xtype: "datefield",
+          format: "Y/m/d",
+          maxLength: 10
+        }
+      ]
+    }],
+    buttons: [
+      {
+        text: 'Update customer',
+        handler:function() {
+          if (customerEdit<%= @customer.id %>.getForm().isValid()) {
+            customerEdit<%= @customer.id %>.getForm().submit({
+              url: "/customers/update/<%= @customer.id %>",
+              waitMsg:'Updating Data...',
+              success: function(){
+                Ext.Msg.alert('Customer updated', 'The customer has been successfully updated');
+                updateSubTab("tab_customers", "Customers list", "sub_tab_customers", "customers");
+                closeSubTab("tab_customers", "sub_tab_customers_edit_<%= @customer.id %>");
+              },
+              failure: function(){
+                Ext.Msg.alert("Error", "There has been a problem while updating this request");
+              }
+            });
+          }
+        }
+      }, {
+        text: 'Cancel',
+        handler: function() {
+          closeSubTab("tab_customers", "sub_tab_customers_edit_<%= @customer.id %>");
+        }
+      }
+    ]
+  });
+
+  // * Verify CSRF token authenticity
+  Ext.Ajax.on('beforerequest', function(br) {
+    var csrf = Ext.select("meta[name='csrf-token']").first();
+    if (csrf) {
+      br.defaultHeaders = Ext.apply(br.defaultHeaders || {}, {'X-CSRF-Token': csrf.getAttribute('content')});
+    }
+  });
+
+  // * Render variable in div
+  customerEdit<%= @customer.id %>.render('customer_edit_content_<%= @customer.id %>');
+</script>
+<br /><div id = "customer_edit_content_<%= @customer.id %>"></div><br />

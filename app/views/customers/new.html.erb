@@ -1,0 +1,72 @@
+<script type="text/javascript">
+  // * Create a panel and their fields
+  var customerNew = new Ext.FormPanel({
+    frame: true,
+    title: "New",
+    style: "margin: 0 0 0 15px",
+    width: 550,
+    labelWidth: 150,
+    monitorValid: true,
+    items: [{
+      xtype: "fieldset",
+      defaultType: "textfield",
+      autoHeight: true,
+      defaults: { width: 350, allowBlank: false },
+      items: [
+        {
+          fieldLabel: "Name",
+          name: "customer[name]",
+          maxLength: 100
+        }, {
+          fieldLabel: "Phone",
+          name: "customer[phone]",
+          maxLength: 14
+        }, {
+          fieldLabel: "Birth",
+          name: "customer[birth]",
+          xtype: "datefield",
+          format: "Y/m/d",
+          maxLength: 10
+        }
+      ]
+    }],
+    buttons: [
+      {
+        text: "Add customer",
+        handler: function() {
+          if (customerNew.getForm().isValid()) {
+            customerNew.getForm().submit({
+              url: "/customers/create",
+              waitMsg: "Saving Data...",
+              success: function() {
+                Ext.Msg.alert('Customer added', 'The customer has been successfully created');
+                updateSubTab("tab_customers", "Customers list", "sub_tab_customers", "customers");
+                closeSubTab("tab_customers", "sub_tab_customers_new");
+              },
+              failure: function() {
+                Ext.Msg.alert("Error", "There has been a problem while creating this request");
+              }
+            });
+          }
+        }
+      }, {
+        text: 'Cancel',
+        handler: function() {
+          closeSubTab("tab_customers", "sub_tab_customers_new");
+        }
+      }
+    ]
+  });
+
+  // * Verify CSRF token authenticity
+  Ext.Ajax.on('beforerequest', function(br) {
+    var csrf = Ext.select("meta[name='csrf-token']").first();
+    if (csrf) {
+      br.defaultHeaders = Ext.apply(br.defaultHeaders || {}, {'X-CSRF-Token': csrf.getAttribute('content')});
+    }
+  });
+
+  // * Render variable in div
+  customerNew.render('customer_new_content');
+</script>
+<br /><div id = "customer_new_content"></div><br />
