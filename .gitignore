@@ -7,6 +7,9 @@
 # Ignore bundler config
 /.bundle
 
+# Ignore webbynode
+/.webbynode
+
 # Ignore all logfiles and tempfiles.
 /log/*.log
 /tmp
@@ -20,3 +23,12 @@
 # Ignore sublime project
 /*.sublime-project
 /*.sublime-workspace
+
+# Ignore setup mail
+/config/initializers/setup_mail.rb
+
+# Ignore secret token
+/config/initializers/secret_token.rb
+
+# Ignore session store mode
+/config/initializers/session_store.rb
